@@ -1,0 +1,43 @@
+---
+ - name: Mariadb installation and configuration
+   hosts: room3
+   become: yes
+   vars:
+     mysql_password: redhat
+   tasks:
+     - name: Installing Mariadb & Mariadb-client.
+       command: yum groupinstall mariadb mariadb-client -y      
+#       yum:
+#        name:
+#         - mariadb
+#         - mariadb-client
+#        state: present
+
+     - name: Starting & Enabling mariadb service.
+       service:
+        name: mariadb
+        state: started
+        enabled: yes
+
+     - name: Adding service to firewall. 
+       firewalld:
+        service: mysql
+        permanent: yes
+        state: enabled
+
+     - name: configuring mysql root password
+       mysql_user:
+        user: root
+        host: localhost
+        password: "{{ mysql_password }}" 
+        login_user: root
+        login_password: "{{ mysql_password }}"
+        check_implicit_admin: yes
+
+     - name: Creating a  new database called Ansibledb.
+       mysql_db:
+        name: Ansibledb
+        state: present
+        login_user: root
+        login_password: "{{ mysql_password }}"
+        

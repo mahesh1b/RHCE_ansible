@@ -1,0 +1,50 @@
+---
+ - name: Apache http conf
+   hosts: room3
+   become: yes
+   tasks: 
+     - name: Installing httpd
+       yum:
+        name: httpd
+        state: latest
+
+     - name: Adding http service to firewall
+       firewalld:
+        service: http
+        permanent: yes
+        state: enabled
+
+     - name: Creating new index file for web hosting
+       copy:
+        content: '<h1>Hello from html/index.html.</h1>'
+        dest: /var/www/html/index.html
+
+     - name: Creating new directory for web hosting
+       file:
+        path: /var/www/mahesh
+        state: directory
+
+     - name: Creating new index file for web hosting
+       copy:
+        content: '<h1>Hello from mahesh/index.html.</h1>'
+        dest: /var/www/mahesh/index.html
+
+     - name: Creating secrets directory in /var/www/mahesh/
+       file:
+        path: /var/www/mahesh/secrets
+        state: directory
+
+     - name: Adding files in /www/mahesh/secrets
+       command: touch /var/www/mahesh/secrets/doc{1..5}
+
+       #you can find sample virtual hosting file here /usr/share/doc/httpd-2.4.6/httpd-vhosts.conf
+     - name: Copying conf file to /etc/httpd/conf.d/ 
+       copy:
+        src: /var/tmp/demohost.conf
+        dest: /etc/httpd/conf.d/one.conf
+
+     - name: Restarting httpd service
+       service:
+        name: httpd
+        state: restarted
+        enabled: yes
